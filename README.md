@@ -1,5 +1,15 @@
 # Pharmaceutical QA AI Agent - Backend
 
+<div align="center">
+  <img src="https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54" alt="Python" />
+  <img src="https://img.shields.io/badge/postgresql-4169e1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI" />
+  <img src="https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens" alt="JWT" />
+</div>
+
+<br>
+
 This is the backend service for the Pharmaceutical Quality Assurance (QA) AI platform. It is built with **FastAPI**, **SQLModel**, and **LangGraph** to power dynamic AI workflows for capturing, processing, and analyzing pharmaceutical complaints.
 
 ## 🚀 Key Capabilities
@@ -24,27 +34,31 @@ This is the backend service for the Pharmaceutical Quality Assurance (QA) AI pla
 ## 🔄 Data Flow Architecture
 
 ```mermaid
-graph TD
-    A[Client UI] -->|JWT Auth| B(Auth Router)
-    A -->|Chat Message| C(Chat Router)
-    A -->|Complaint JSON| D(Complaint Router)
-    
-    subgraph FastAPI Backend
-        B -->|Hash/Verify| B1[Auth Service]
-        B1 -->|Query| DB[(PostgreSQL DB)]
-        
-        C -->|State| C1[LangGraph Complaint Agent]
-        C1 -->|LLM Call| LLM1{OpenAI GPT-4o-mini}
-        LLM1 -->|Ask User| C1
-        LLM1 -->|Extract JSON| C1
-        
-        D -->|Validate| D1[Complaint Service]
-        D1 -->|Invoke| D2[Risk Agent]
-        D2 -->|Structured Prompt| LLM2{OpenAI GPT-4o-mini}
-        LLM2 -->|Risk Assessment| D2
-        D2 -->|Merge Data| D1
-        D1 -->|Save Record| DB
-    end
+sequenceDiagram
+    actor User as Client UI
+    participant Auth as Auth API
+    participant Chat as Chat API (LangGraph)
+    participant Comp as Complaint API
+    participant LLM as OpenAI (GPT-4o)
+    participant DB as PostgreSQL
+
+    %% 1. Authentication Flow
+    User->>Auth: POST /login (Credentials)
+    Auth->>DB: Verify User
+    Auth-->>User: Return JWT Token
+
+    %% 2. Conversational Extraction Flow
+    User->>Chat: POST /chat (Message + JWT)
+    Chat->>LLM: Analyze Chat History & Extract
+    LLM-->>Chat: Extracted JSON or Follow-up Qs
+    Chat-->>User: AI Response + Live Draft Data
+
+    %% 3. Risk Assessment & Submission Flow
+    User->>Comp: POST /complaints (Final JSON)
+    Comp->>LLM: Trigger Risk Agent (Analyze JSON)
+    LLM-->>Comp: Structured Risk Assessment
+    Comp->>DB: Save Complaint + Risk Data
+    Comp-->>User: 201 Created (With AI Summary)
 ```
 
 ### LangGraph Agent States (`Complaint Agent`)
