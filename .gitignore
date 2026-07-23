@@ -1,0 +1,31 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Database
+*.sqlite
+*.db
+
+# Environment variables
+.env
+.env.local
+app/.env
+# LangGraph / AI Checkpoints
+checkpoints/
+.langchain/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# MacOS
+.DS_Store
