@@ -2,9 +2,10 @@
 
 <div align="center">
   <img src="https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi" alt="FastAPI" />
-  <img src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54" alt="Python" />
-  <img src="https://img.shields.io/badge/postgresql-4169e1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
-  <img src="https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI" />
+  <img src="https://img.shields.io/badge/Python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54" alt="Python" />
+  <img src="https://img.shields.io/badge/PostgreSQL-4169e1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Groq-F44336?style=for-the-badge&logo=groq&logoColor=white" alt="Groq" />
+  <img src="https://img.shields.io/badge/LangChain-1C3C3C?style=for-the-badge&logo=langchain&logoColor=white" alt="LangChain" />
   <img src="https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens" alt="JWT" />
 </div>
 
@@ -39,7 +40,7 @@ sequenceDiagram
     participant Auth as Auth API
     participant Chat as Chat API (LangGraph)
     participant Comp as Complaint API
-    participant LLM as OpenAI (GPT-4o)
+    participant LLM as Groq (Llama-3.3-70b)
     participant DB as PostgreSQL
 
     %% 1. Authentication Flow
@@ -72,7 +73,7 @@ sequenceDiagram
 ## 🛠 Tech Stack
 - **Framework**: FastAPI (Python 3.10+)
 - **Database**: PostgreSQL & SQLModel (SQLAlchemy)
-- **AI / LLM**: LangChain, LangGraph, OpenAI (gpt-4o-mini)
+- **AI / LLM**: LangChain, LangGraph, Groq (llama-3.3-70b-versatile)
 - **Authentication**: JWT, pwdlib
 
 ## ⚙️ Setup & Installation
@@ -92,7 +93,7 @@ sequenceDiagram
    Create a `.env` file in the root directory:
    ```env
    DATABASE_URL=postgresql://user:password@localhost:5432/pharma_qa
-   OPENAI_API_KEY=sk-your-openai-api-key
+   GROQ_API_KEY=gsk_your-groq-api-key
    SECRET_KEY=your_super_secret_jwt_key
    ALGORITHM=HS256
    ACCESS_TOKEN_EXPIRE_MINUTES=30
