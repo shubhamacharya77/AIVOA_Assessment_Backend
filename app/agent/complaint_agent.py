@@ -1,3 +1,4 @@
+import json
 import operator
 from typing import Annotated, Any, Dict, List, TypedDict
 from app.prompts.finalize_prompt import FINALIZE_PROMPT_TEMPLATE
@@ -38,20 +39,24 @@ REQUIRED_FIELDS = [
 
 # 2. Define Nodes
 def extract_node(state: ComplaintAgentState):
-    """Uses LLM to extract fields based on the entire conversation context."""
+    """Uses LLM to extract fields based on the entire conversation context and current data state."""
     chain = get_extraction_chain()
 
+    current_data = state.get("extracted_data", {}) or {}
+
     # Combine the chat history into a single text block for the extractor
-    # (In a production system, you might format this more gracefully)
     conversation_text = "\n".join(
         [f"{msg.type}: {msg.content}" for msg in state["chat_history"]]
     )
 
-    # Run the extraction chain
-    result: ComplaintExtraction = chain.invoke({"text": conversation_text})
+    current_data_str = json.dumps(current_data, indent=2) if current_data else "None"
 
-    # Merge new extractions with existing data
-    current_data = state.get("extracted_data", {})
+    # Run the extraction chain
+    result: ComplaintExtraction = chain.invoke(
+        {"text": conversation_text, "current_data": current_data_str}
+    )
+
+    # Merge extractions with current data
     new_data = result.model_dump()
 
     # Only update fields that the LLM found (not null)
@@ -60,6 +65,7 @@ def extract_node(state: ComplaintAgentState):
             current_data[key] = value
 
     return {"extracted_data": current_data}
+
 
 
 def validate_node(state: ComplaintAgentState):
