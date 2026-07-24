@@ -9,11 +9,18 @@
   <img src="https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens" alt="JWT" />
 </div>
 
+<p align="center">
+  <a href="https://github.com/shubhamacharya77/AIVOA_Assessment_Frontend" target="_blank">
+    <img src="https://img.shields.io/badge/Frontend-View%20Repo-blue?style=for-the-badge&logo=github" alt="Frontend Repo" />
+  </a>
+</p>
+
 <br>
 
 This is the backend service for the Pharmaceutical Quality Assurance (QA) AI platform. It is built with **FastAPI**, **SQLModel**, and **LangGraph** to power dynamic AI workflows for capturing, processing, and analyzing pharmaceutical complaints.
 
 ## 🚀 Key Capabilities
+
 - **AI Conversational Agent**: Powered by LangGraph, it conducts dynamic, organic conversations to extract critical structured QA data from user chat.
 - **AI Risk Assessment**: Automated risk prediction engine utilizing structured LLM outputs to suggest severity, root cause hypotheses, and actionable next steps.
 - **Robust API Engine**: Built with FastAPI for high concurrency, automatic OpenAPI documentation, and strict Pydantic validation.
@@ -23,6 +30,7 @@ This is the backend service for the Pharmaceutical Quality Assurance (QA) AI pla
 ---
 
 ## 🌊 User Flow
+
 1. **Authentication**: The user (QA Agent or Customer) registers and logs in via JWT.
 2. **Organic Conversation**: The user initiates a conversation via the `/api/v1/chat` endpoint, describing a pharmaceutical issue (e.g., "The blister pack was unsealed").
 3. **Dynamic Extraction**: The AI asks follow-up questions organically until all 13 required standard QA fields (e.g., Batch Number, Product Name, Expiry) are successfully identified.
@@ -63,6 +71,7 @@ sequenceDiagram
 ```
 
 ### LangGraph Agent States (`Complaint Agent`)
+
 - **Extract Node**: Scans chat history to extract QA fields.
 - **Validate Node**: Checks for missing required schema fields.
 - **Ask User Node**: Prompts user organically if fields are missing.
@@ -71,6 +80,7 @@ sequenceDiagram
 ---
 
 ## 🛠 Tech Stack
+
 - **Framework**: FastAPI (Python 3.10+)
 - **Database**: PostgreSQL & SQLModel (SQLAlchemy)
 - **AI / LLM**: LangChain, LangGraph, Groq (llama-3.3-70b-versatile)
@@ -79,18 +89,21 @@ sequenceDiagram
 ## ⚙️ Setup & Installation
 
 1. **Create Virtual Environment**
+
    ```bash
    python3 -m venv .venv
    source .venv/bin/activate
    ```
 
 2. **Install Dependencies**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 3. **Configure Environment**
    Create a `.env` file in the root directory:
+
    ```env
    DATABASE_URL=postgresql://user:password@localhost:5432/pharma_qa
    GROQ_API_KEY=gsk_your-groq-api-key
@@ -103,5 +116,5 @@ sequenceDiagram
    ```bash
    uvicorn app.main:app --reload
    ```
-   The API will be available at `http://localhost:8000`. 
+   The API will be available at `http://localhost:8000`.
    View the interactive Swagger UI at `http://localhost:8000/docs`.
