@@ -1,6 +1,6 @@
 import operator
 from typing import Annotated, Any, Dict, List, TypedDict
-
+from app.prompts.finalize_prompt import FINALIZE_PROMPT_TEMPLATE
 from langchain_core.messages import AIMessage, BaseMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, StateGraph
@@ -95,19 +95,16 @@ def ask_user_node(state: ComplaintAgentState):
 
 def finalize_node(state: ComplaintAgentState):
     """Uses LLM to generate a dynamic final confirmation or update acknowledgment."""
-    from app.prompts.finalize_prompt import FINALIZE_PROMPT_TEMPLATE
-
     llm = get_llm()
 
-    # Get the last user message, if available
+    # Get the last user message reliably from chat history
     last_user_msg = ""
-    if state.get("chat_history") and len(state["chat_history"]) > 1:
-        # Assuming the last message before this node is from the user
-        last_user_msg = (
-            state["chat_history"][-2].content
-            if hasattr(state["chat_history"][-2], "content")
-            else ""
-        )
+    if state.get("chat_history"):
+        for msg in reversed(state["chat_history"]):
+            msg_type = getattr(msg, "type", "")
+            if msg_type == "human" or msg.__class__.__name__ == "HumanMessage":
+                last_user_msg = msg.content if hasattr(msg, "content") else str(msg)
+                break
 
     prompt = FINALIZE_PROMPT_TEMPLATE.format(last_user_msg=last_user_msg)
 

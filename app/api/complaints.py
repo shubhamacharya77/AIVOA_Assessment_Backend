@@ -1,20 +1,27 @@
-from fastapi import APIRouter, HTTPException
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.schemas.complaint_schema import ComplaintExtraction
-from app.services import complaint_service
+from app.services import auth_service, complaint_service
 
 router = APIRouter(prefix="/complaints", tags=["complaints"])
+security = HTTPBearer()
 
 
 @router.post("")
-def create_complaint(complaint_data: ComplaintExtraction):
+def create_complaint(
+    complaint_data: ComplaintExtraction,
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
+):
     try:
-        # Use the existing complaint service to save it to PostgreSQL
-        # We pass a mock user_id=1 for now, and extract source_type from the data
+        user_data = auth_service.get_current_user(credentials.credentials)
+        user_id = user_data["id"]
         source_type = complaint_data.source or "Unknown"
 
         new_complaint = complaint_service.create_complaint(
-            user_id=1,
+            user_id=user_id,
             source_type=source_type,
             structured_data=complaint_data.model_dump(exclude_none=True),
         )
@@ -26,29 +33,40 @@ def create_complaint(complaint_data: ComplaintExtraction):
             },
         }
     except ValueError as e:
-        # Catch our custom validation errors (like "Complaint already exists")
         raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException as he:
+        raise he
     except Exception:
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("")
-def get_complaints():
+def get_complaints(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
+):
     try:
-        # Using mock user_id=1 for now
-        complaints = complaint_service.get_all_complaints(user_id=1)
+        user_data = auth_service.get_current_user(credentials.credentials)
+        user_id = user_data["id"]
+        complaints = complaint_service.get_all_complaints(user_id=user_id)
         return {"status": "success", "data": complaints}
+    except HTTPException as he:
+        raise he
     except Exception:
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.put("/{complaint_id}")
-def update_existing_complaint(complaint_id: int, complaint_data: ComplaintExtraction):
+def update_existing_complaint(
+    complaint_id: int,
+    complaint_data: ComplaintExtraction,
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
+):
     try:
-        # Pass mock user_id=1
+        user_data = auth_service.get_current_user(credentials.credentials)
+        user_id = user_data["id"]
         success, message, complaint = complaint_service.update_complaint(
             complaint_id=complaint_id,
-            user_id=1,
+            user_id=user_id,
             updated_data=complaint_data.model_dump(exclude_none=True),
         )
         if not success:
@@ -62,3 +80,4 @@ def update_existing_complaint(complaint_id: int, complaint_data: ComplaintExtrac
         raise he
     except Exception:
         raise HTTPException(status_code=500, detail="Internal server error")
+

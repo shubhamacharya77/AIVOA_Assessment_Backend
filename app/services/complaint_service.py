@@ -32,10 +32,13 @@ def create_complaint(
         return complaint
 
 
-def get_complaint(complaint_id: int) -> Optional[Complaint]:
-    """Retrieves a single complaint by its ID."""
+def get_complaint(complaint_id: int, user_id: Optional[int] = None) -> Optional[Complaint]:
+    """Retrieves a single complaint by its ID, optionally verifying user ownership."""
     with get_session() as session:
-        return session.get(Complaint, complaint_id)
+        complaint = session.get(Complaint, complaint_id)
+        if complaint and (user_id is None or complaint.user_id == user_id):
+            return complaint
+        return None
 
 
 def get_all_complaints(user_id: int) -> list[Complaint]:
@@ -60,13 +63,13 @@ def update_complaint(
     with get_session() as session:
         complaint = session.get(Complaint, complaint_id)
 
-        if not complaint:
-            # Microservice Validation: Complaint does not exist.
+        if not complaint or complaint.user_id != user_id:
+            # Microservice Validation: Complaint does not exist or access denied.
             msg = f"I'm sorry, but I couldn't find an existing complaint with ID {complaint_id}. I would be happy to create a new complaint for you instead."
             return False, msg, None
 
         # If it exists, update the JSON fields
-        current_data = complaint.structured_data.copy()
+        current_data = complaint.structured_data.copy() if complaint.structured_data else {}
         current_data.update(updated_data)
 
         complaint.structured_data = current_data
